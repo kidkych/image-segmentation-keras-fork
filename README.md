@@ -1,5 +1,8 @@
 # Image Segmentation Keras : Implementation of Segnet, FCN, UNet, PSPNet and other models in Keras.
 
+Note: This is a fork of the [original repo](https://github.com/divamgupta/image-segmentation-keras) by Divam Gupta.
+It is a refactor of the source code to make it easier to follow.
+
 Implementation of various Deep Image Segmentation models in keras. 
 
 
