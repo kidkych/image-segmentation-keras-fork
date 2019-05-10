@@ -57,35 +57,30 @@ class ModelBase:
         initial_epoch = 0
 
         if checkpoints_path is not None:
-            checkpoint_file = "{checkpoints_path}/saved_model".format(checkpoints_path=checkpoints_path)
+            checkpoint_file = "{checkpoints_path}/saved_weights".format(checkpoints_path=checkpoints_path)
 
             if not os.path.exists(checkpoints_path):
                 os.makedirs(checkpoints_path)
             else:
-                if resume_training:
-                    files = glob.glob(checkpoint_file + "-*")
+                files = glob.glob(checkpoint_file + "-*")
 
-                    initial_epoch = sorted(
-                        [int(x.split("-")[1].split("_")[-1]) for x in files],
-                        reverse=True
-                    )[0]
-
-                else:
+                if len(files) > 0:
                     warnings.warn("Provided checkpoints_path already has existing checkpoints. Make sure"
                                   " resume_training=True to continue training. Proceeding but previous"
                                   " checkpoints may be overwritten")
 
+            path_template = checkpoint_file + "-epoch_{epoch:02d}.hdf5"
+
             if validate:
-                path_template = checkpoint_file + "-epoch_{epoch:02d}-valacc_{val_acc:.2f}.hdf5"
                 monitor_metric = "val_acc"
             else:
-                path_template = checkpoint_file + "-epoch_{epoch:02d}-acc_{acc:.2f}.hdf5"
                 monitor_metric = "acc"
 
             callbacks.append(
                 keras.callbacks.ModelCheckpoint(
                     filepath=path_template,
                     monitor=monitor_metric,
+                    save_weights_only=True,
                     verbose=1,
                 )
             )
