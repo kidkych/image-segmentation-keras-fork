@@ -25,6 +25,8 @@ class ModelBase:
         else:
             self.model = model_constructor(n_classes=n_classes, input_height=input_height, input_width=input_width)
 
+        self.curr_epoch = 0
+
         del self.model.train
         del self.model.predict_segmentation
         del self.model.predict_multiple
@@ -54,8 +56,6 @@ class ModelBase:
 
         callbacks = []
 
-        initial_epoch = 0
-
         if checkpoints_path is not None:
             checkpoint_file = "{checkpoints_path}/saved_weights".format(checkpoints_path=checkpoints_path)
 
@@ -70,11 +70,7 @@ class ModelBase:
                                   " checkpoints may be overwritten")
 
             path_template = checkpoint_file + "-epoch_{epoch:02d}.hdf5"
-
-            if validate:
-                monitor_metric = "val_acc"
-            else:
-                monitor_metric = "acc"
+            monitor_metric = "val_acc" if validate else "acc"
 
             callbacks.append(
                 keras.callbacks.ModelCheckpoint(
@@ -86,6 +82,12 @@ class ModelBase:
             )
 
         self.model.compile(loss='categorical_crossentropy', optimizer=optimizer_name, metrics=['accuracy'])
+
+        initial_epoch = self.curr_epoch if resume_training else 0
+
+        if initial_epoch >= epochs:
+            raise AssertionError("Please increase epochs value, training is starting at epoch {} and total number of"
+                                 " epochs specified for training is {}".format(initial_epoch, epochs))
 
         if validate:
             history = self.model.fit_generator(
@@ -112,4 +114,5 @@ class ModelBase:
                 initial_epoch=initial_epoch
             )
 
+        self.curr_epoch = epochs
         return history
