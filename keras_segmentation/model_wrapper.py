@@ -1,24 +1,32 @@
-import os
 import glob
-import warnings
+import os
 import random
+import warnings
 
-import keras
 import cv2
+import keras
 import numpy as np
+from tqdm import tqdm
 
+from .data_utils.data_loader import image_segmentation_generator, verify_segmentation_dataset, get_image_arr
 from .models import model_from_name
 from .models.config import IMAGE_ORDERING
-from.data_utils.data_loader import image_segmentation_generator, verify_segmentation_dataset, get_image_arr
-
 
 random.seed(0)
 class_colours = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for _ in range(5000)]
 
 
-class ModelBase:
+class WrappedModel:
 
     def __init__(self, keras_model, n_classes, input_height=None, input_width=None):
+        """
+
+        Args:
+            keras_model:
+            n_classes:
+            input_height:
+            input_width:
+        """
         assert (type(n_classes) is int) and n_classes > 0, "n_classes must be an integer value greater than 0."
 
         if type(keras_model) is str:
@@ -44,6 +52,25 @@ class ModelBase:
     def train_model(self, train_images, train_annotations, epochs=5, batch_size=2, checkpoints_path=None,
                     resume_training=True, validate=False, val_images=None, val_annotations=None, verify_dataset=True,
                     steps_per_epoch=512, optimizer_name="adadelta"):
+        """
+
+        Args:
+            train_images:
+            train_annotations:
+            epochs:
+            batch_size:
+            checkpoints_path:
+            resume_training:
+            validate:
+            val_images:
+            val_annotations:
+            verify_dataset:
+            steps_per_epoch:
+            optimizer_name:
+
+        Returns:
+
+        """
 
         if verify_dataset:
             verify_segmentation_dataset(train_images, train_annotations, self.model.n_classes)
@@ -115,10 +142,27 @@ class ModelBase:
         return history
 
     def load_weights(self, saved_weights_path):
+        """
+
+        Args:
+            saved_weights_path:
+
+        Returns:
+
+        """
         self.curr_epoch = int(saved_weights_path.split("_")[-1].split(".")[0])
         self.model.load_weights(saved_weights_path)
 
     def predict(self, input_img, out_fname=None):
+        """
+
+        Args:
+            input_img:
+            out_fname:
+
+        Returns:
+
+        """
         assert (type(input_img) == str) or (type(input_img) == np.ndarray), "Input should be the ndarray of an image" \
                                                                             " or a filename."
 
@@ -146,3 +190,36 @@ class ModelBase:
             cv2.imwrite(out_fname, seg_img)
 
         return prediction
+
+    def predict_multiple(self, input_imgs=None, input_directory=None, output_directory=None):
+        """
+
+        Args:
+            input_imgs:
+            input_directory:
+            output_directory:
+
+        Returns:
+
+        """
+        if input_imgs is None and (input_directory is not None):
+            input_imgs = glob.glob(os.path.join(input_directory, "*.jpg")) + \
+                          glob.glob(os.path.join(input_directory, "*.png")) + \
+                          glob.glob(os.path.join(input_directory, "*.jpeg"))
+
+        assert type(input_imgs) == list
+
+        prediction_list = []
+
+        if output_directory is None:
+            prediction_list = [self.predict(input_img, None) for _, input_img in enumerate(tqdm(input_imgs))]
+        else:
+            for i, input_img in enumerate(tqdm(input_imgs)):
+                if type(input_img) == str:
+                    out_fname = os.path.join(output_directory, os.path.basename(input_img))
+                else:
+                    out_fname = os.path.join(output_directory, str(i) + ".jpg")
+
+                prediction_list.append(self.predict(input_img, out_fname))
+
+        return prediction_list
