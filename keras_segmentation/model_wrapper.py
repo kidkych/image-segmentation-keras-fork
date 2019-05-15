@@ -247,6 +247,9 @@ class WrappedModel:
             # list comprehension if segmented images not being saved
             prediction_list = [self.predict(input_img, None) for _, input_img in enumerate(tqdm(input_imgs))]
         else:
+            if not os.path.exists(output_directory):
+                os.makedirs(output_directory)
+
             for i, input_img in enumerate(tqdm(input_imgs)):
 
                 # if img is path to file, use filename for segmented image in out_directory. Else use iteration
