@@ -6,7 +6,7 @@ Primary Changes are:
 * A model wrapper class that simplifies the process of training and inference.
   It can be found under `keras_segmentation/model_wrapper.py`
 
-* An alternate cli interface that uses docopt for parsing arguments.
+* An alternate CLI interface that uses docopt for parsing arguments.
   This can be found under `keras_segmentation/__main__.py`
   
 # Image Segmentation Keras : Implementation of Segnet, FCN, UNet, PSPNet and other models in Keras.
@@ -72,6 +72,13 @@ If you do not have a capable NVIDIA GPU or do not wish to use it:
 pip install -r requirements-cpu.txt
 ```
 
+### Download the Sample Prepared Dataset
+
+Download and extract the following:
+
+https://drive.google.com/file/d/0B0d9ZiqAgFkiOHR1NTJhWVJMNEU/view?usp=sharing
+
+You will get a folder named `dataset1`
 
 ### Preparing Your Own Data for Training
 
@@ -99,14 +106,6 @@ cv2.imwrite( "ann_1.png" ,ann_img )
 ```
 
 Only use bmp or png format for the annotation images.
-
-## Download the Sample Prepared Dataset
-
-Download and extract the following:
-
-https://drive.google.com/file/d/0B0d9ZiqAgFkiOHR1NTJhWVJMNEU/view?usp=sharing
-
-You will get a folder named dataset1/ 
 
 
 ## Using the Python Module
@@ -165,9 +164,10 @@ plt.imshow(out)
 ```
 
 The `keras_model` argument of the `keras_segmentation.model_wrapper.WrappedModel` class 
-can either be the relevant model module itself (i.e explicitly specifying the model as above),
+can either be the relevant model module itself (i.e. explicitly specifying the model as above),
 or it can be a string that is a key of the `model_from_name` dictionary found in
-`keras_segmentation/models/__init__.py`
+`keras_segmentation/models/__init__.py`. These keys are the same as the models listed in the first
+column of the table above.
 
 ### Loading a Trained Model
 
@@ -192,17 +192,17 @@ out = model.predict(
 plt.imshow(out)
 ```
 
-A model can also have weights loaded, and then continue to be trained after.
-This is useful when you have a prolonged train job and your code or computer
+A model can also have weights loaded, and then be trained after.
+This is useful when you have a prolonged training job and your code or computer
 errors out before all epochs are complete.
 
 ## Usage via command line 
 You can also use the tool just using command line. Examples are provided below, run `python -m keras_segmentation -h`
 to see all possible arguments and options.
 
-Note that sets of arguments enclosed in `[...]`
-are optional, sets of arguments enclosed in `(...)` are required, and set of arguments enclosed in `[(...)]` are 
-optional, but if you wish to use them, ALL arguments enclosed in that set of `[(...)]` are required.
+Note that sets of arguments enclosed in `[...]` are optional. Sets of arguments enclosed in `(...)` are required.
+Sets of arguments enclosed in `[(...)]` are optional, but if you wish to use them, ALL arguments enclosed in that
+set of `[(...)]` are required.
 
 To train or predict using a different model, replace `resnet50_segnet` with another model from the 
 first column of the table above.
