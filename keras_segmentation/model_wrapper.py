@@ -29,7 +29,7 @@ class WrappedModel:
 
         Args:
             keras_model: (str or Keras.Model) Either name of model found in keras_segmentation/models/__init__.py or a
-                function handle/class handle.
+                         function handle/class handle.
             n_classes (int): Number of output classes
             input_height (int): height of input images.
             input_width (int): width of input images.
